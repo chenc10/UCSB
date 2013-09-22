@@ -1,0 +1,86 @@
+# This code is for extracting the blocks from the results of IDA(it is exactlly what we have already created in August)
+from idaapi import *
+import subprocess
+from idautils import *
+ALLNodeList = dict()#dictionary for saving the existence of nodes
+class Node:
+    "'node for the graph'"
+    def __init__(self,Addr):
+	self.Addr = Addr
+	self.FList = []
+	self.CList = []
+	      
+    def add_FList(self,Node):
+	self.FList.append(Node)
+    def add_CList(self,Node):
+	self.CList.append(Node)
+	
+if __name__ == "__main__":
+    iseffective = 1 #to avoid the situation where the current instruction would never be visited 
+    ea = PrevFunction(ScreenEA()) #get the start adress of the function
+    FunctionName = GetFunctionName(ea) #get functionname
+    CurrentNode = Node(ea)	#create the root node
+    ALLNodeList[ea] = CurrentNode	#update the dictionary
+    for head in Heads(NextNotTail(ea), FindFuncEnd(ea)):	# visit all the instructions one by one
+        if isCode(GetFlags(head)):	#if current head is a valid instruction
+	    if not iseffective:		#if the former instruction of the current one can never be visited
+                for RefBackTo in CodeRefsTo(head,0): #we judge whether this instruction can be visited by whether refered to from other place
+                    iseffective = 1 # then we update the sign for effection
+                if iseffective:	#if effective we create a node for this instruction
+                    CreateNode = ALLNodeList.setdefault(head,Node(head))
+                    CurrentNode = CreateNode		
+            else: # if the former instruction of the current one can be visited and then is effective
+                isreftoexist = 0 #sign to judge whether we shall create a new node for the current instruction: if refered to from other place
+                for RefBackTo in CodeRefsTo(head,0):
+                    isreftoexist = 1 # it has been refered to from other place, we update the sign(we should create a new node)
+                if isreftoexist:  
+                    CreateNode = ALLNodeList.setdefault(head,Node(head))
+                    if CurrentNode == CreateNode: #if the current node is already a start of a new block and it also be refered by other place
+                        continue
+                    CurrentNode.add_CList(CreateNode)
+                    CreateNode.add_FList(CurrentNode)
+                    CurrentNode = CreateNode
+                else:	#if the current instruction is not refered by other place
+                    if GetMnem(head) == 'retn':	#if the current instruction is a return point we cut off the control flow by make iseffective 0
+                        iseffective = 0
+                        continue
+                    if GetMnem(head) <> 'jmp':
+                        if GetMnem(head)[0] == 'j':#if the current node is a conditional jump
+                            CurrentNode1 = ALLNodeList.setdefault(NextNotTail(head),Node(NextNotTail(head)))#create a new node for the next instruction
+                            for f in CodeRefsFrom(head,0):
+                            	CurrentNode2 = ALLNodeList.setdefault(f,Node(f))
+                            	CurrentNode1.add_FList(CurrentNode)
+                            	CurrentNode2.add_FList(CurrentNode)
+                            	CurrentNode.add_CList(CurrentNode1)
+                            	CurrentNode.add_CList(CurrentNode2)
+                            CurrentNode = CurrentNode1	#update the current node
+                    else:# when there is a conditional jump
+                        for f in CodeRefsFrom(head,0):
+                        	CurrentNode2 = ALLNodeList.setdefault(f,Node(f))
+                        	CurrentNode2.add_FList(CurrentNode)
+                        	CurrentNode.add_CList(CurrentNode2)
+                        iseffective = 0  
+for ele1,ele2 in ALLNodeList.items():
+    ele2.FList = list(set(ele2.FList))
+    ele2.CList = list(set(ele2.CList))
+sorted = ALLNodeList.items()
+sorted.sort()
+
+file_object = open(FunctionName + '.dot','w')
+file_object.write('digraph G{ \n')
+i = 1
+NumList = dict()
+for ele1,ele2 in sorted:
+    file_object.write('\tnode'+ '%d' %i + '[label = "%d"]' %ele1 +';\n')
+    NumList[ele1] = i
+    i += 1
+file_object.write('\n')
+for ele1,ele2 in sorted:
+    for f in ele2.CList:
+        file_object.write('\tnode%d' %NumList[ele1] + ' -> ' + 'node%d' %NumList[f.Addr] +'\n')
+file_object.write('}')
+file_object.close()
+#subprocess.Popen('xdot ' + FunctionName +'.dot',shell = True) 
+
+
+
