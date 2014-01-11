@@ -1,0 +1,27 @@
+#This is a brief introduction of my work
+#
+# GetDataFromIDA.py
+#	read data from IDA results into a txt file
+#
+# WriteDataIntoFile.py
+#	read data from txt file into memory
+#
+# PreOperationMethod1.py
+#	exert pre-operation method 1
+#
+# AbstractionMethod1.py
+#	using abstraction method 1 to simplify the graph
+#
+# AbstractionMethod2.py
+#	using abstraction method 2 to simplify the graph
+#
+# AbstractionMethod3.py
+#	using abstraction method 3 to simplify the graph
+#
+# ABOVE is for debugging seperately. And each file is an integreate exe.
+# 
+#
+# WholeAbstractionCode.py
+#	this is an integrated code from the last 5 independent files and it can finish all the abstraction work.
+#	please be noted that currently there is no inner construction inside each merged node. This work needs to be done further. 
+#	I am working to simplify the whole code into functions in different files, which is more easy to call and analysis. And I am also working to build data constructions inside each node.
