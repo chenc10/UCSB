@@ -6,3 +6,9 @@ exec /share/vim/vim73/vim "$@"
 *.pdf
 *.exe
 *.dot
+*.idb
+*.ini
+*.id0
+*.id1
+*.name
+*.til
