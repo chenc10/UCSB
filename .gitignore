@@ -12,4 +12,5 @@ exec /share/vim/vim73/vim "$@"
 *.id1
 *.name
 *.til
+README.md
 tmp.py

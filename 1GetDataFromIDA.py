@@ -103,6 +103,6 @@ for ele1,ele2 in sorted:
         file_object.write('\tnode%d' %NumList[ele1] + ' -> ' + 'node%d' %NumList[f.Addr] +'\n')
 file_object.write('}')
 file_object.close()
-subprocess.Popen('xdot '+filename,shell = True) 
-subprocess.Popen('dot -Tpdf -o '+fname +'.pdf ' + filename,shell = True)     
+#subprocess.Popen('xdot '+filename,shell = True) 
+subprocess.Popen('dot -Tjpg -o '+fname +'.jpg ' + filename,shell = True)     
 
