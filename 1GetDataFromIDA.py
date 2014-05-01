@@ -74,16 +74,16 @@ sorted.sort()
 record = open("GDB.txt",'w')
 for ele1,ele2 in sorted:
     ele1 = ele1 * 16
-    record.write("%d\n\t"%ele1)
+    record.write("%X\n\t"%ele1)
     for f in ele2.FList:
         ad = f.Addr
         ad = ad * 16
-        record.write("%d "%ad)
+        record.write("%X "%ad)
     record.write("\n\t")
     for c in ele2.CList:
         ad = c.Addr
         ad = ad * 16
-        record.write("%d "%ad)
+        record.write("%X "%ad)
     record.write("\n")
 record.close()
 
