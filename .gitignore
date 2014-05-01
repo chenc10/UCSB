@@ -1,0 +1,8 @@
+#!/bin/sh
+
+exec /share/vim/vim73/vim "$@"
+
+*.txt
+*.pdf
+*.exe
+*.dot
