@@ -69,10 +69,15 @@ class Stack:
         return self.Array.pop()
 
 if __name__ == "__main__":
+
+######################################################################################################################################
+#   ReadDataFromFile: get data from GDB.txt
+#
     fread = open("GDB.txt",'r')
     Database = fread.readlines()
     fread.close()
     i = 0
+    ReturnNode = []
     while i < len(Database):#we should make address * 10
         if not ALLNodeList.has_key(int(Database[i],16)):
             ALLNodeList[int(Database[i],16)] = Node(int(Database[i],16))
@@ -98,9 +103,13 @@ if __name__ == "__main__":
                 C = ALLNodeList[int(SaveChildrens[m],16)]
                 #C = ALLNodeList.setdefault(int(SaveChildrens[m],16),Node(int(SaveChildrens[m],16)))
                 CurrentNode.add_CList(C)
+        else:
+            ReturnNode.append(CurrentNode)
         i = i + 1
-
-    print len(TreeRootList)
+        
+######################################################################################################################################
+#   PreOperationMethod1
+#
     for t,node in ALLNodeList.items():
         # here we assume that there is only a node that has more than two children in a function
         if len(node.CList) > 2:
@@ -117,11 +126,27 @@ if __name__ == "__main__":
                 RepNode.FList = [node]
                 node = RepNode
             break
-    print "begin"
-    #print ALLNodeList.items()
+
+######################################################################################################################################
+#   PreOperationMethod2
+#
+    if len(ReturnNode) > 1:
+        print "pre-operation method 2 is being used\n"
+        RepNode = Node(ReturnNode[0].Addr + 1)
+        RepNode.FList = ReturnNode
+        for node in ReturnNode:
+            node.CList = [RepNode]
+
+
+######################################################################################################################################
+# take turns to use AbstractMethod1 and AbstractMethod2
+#
     IsSimplable = 1
     while IsSimplable == 1:
         
+    ###################################################################
+    #   AbstractMethod1:
+    #
         while IsSimplable == 1:
             IsSimplable = 0
             for t,node in ALLNodeList.items():
@@ -211,7 +236,9 @@ if __name__ == "__main__":
                     break
         # above: DO WHILE CFG has been changed, using abstraction method 1 to abstract CFG
 
-
+    ######################################################################################################################################
+    #   AbstractMethod2:
+    #
         # 0: a node is not in the stack and has not been visited; 1: a node is in the stack but has not been visited
         # 2: a node is not in the stack but is currently being visited; 3: a node is not in the stack but has already been visited 
         MyStack = Stack()
@@ -287,7 +314,10 @@ if __name__ == "__main__":
 
         for t,node in ALLNodeList.items():
             node.IsVisited = 0 #reset sign
-        
+            
+######################################################################################################################################
+#   PreOperationMethod1
+#
         for t,node in ALLNodeList.items():
         # here we assume that there is only a node that has more than two children in a function
             if len(node.CList) > 2:
@@ -307,6 +337,12 @@ if __name__ == "__main__":
     #print ALLNodeList.items()
     # here the first half has been finished, the code above should be independent with the code below
     
+######################################################################################################################################
+#   take turns to use AbstractMethod1 and AbstractMethod3
+#
+    ######################################################################################################################################
+    #   AbstractMethod3:
+    #
     IsSimplable = 1
     while IsSimplable == 1:
         MyStack = Stack()
@@ -337,6 +373,10 @@ if __name__ == "__main__":
                         break
                     else:
                         MyStack.Push(node)
+                        
+    ######################################################################################################################################
+    #   AbstractMethod1:
+    #
         if IsSimplable == 1:            
             while IsSimplable == 1:
                 IsSimplable = 0
@@ -427,7 +467,7 @@ if __name__ == "__main__":
                         break
             # above: DO WHILE CFG has been changed, using abstraction method 1 to abstract CFG
             IsSimplable = 1
-
+######################################################################################################################################
 
 ###since after abstraction usually there is only one node left, we needn't output the result
 ##print ALLNodeList.items()
