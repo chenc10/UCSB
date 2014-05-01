@@ -429,25 +429,25 @@ if __name__ == "__main__":
             IsSimplable = 1
 
 
-
-print ALLNodeList.items()
-filename = 'GDB.dot'
-file_object = open(filename,'w')
-file_object.write('digraph G{ \n')
-i = 1
-NumList = dict()
-for ele1,ele2 in ALLNodeList.items():
-    file_object.write('\tnode'+ '%d' %i + '[label = "%X"]' %ele1 +';\n')
-    NumList[ele1] = i
-    i += 1
-file_object.write('\n')
-for ele1,ele2 in ALLNodeList.items():
-    for f in ele2.CList:
-        file_object.write('\tnode%d' %NumList[ele1] + ' -> ' + 'node%d' %NumList[f.Addr] +'\n')
-file_object.write('}')
-file_object.close()
-#subprocess.Popen('xdot '+filename,shell = True) 
-subprocess.Popen('dot -Tpdf -o '+ 'GDB.pdf ' + filename,shell = True)     
+###since after abstraction usually there is only one node left, we needn't output the result
+##print ALLNodeList.items()
+##filename = 'GDB.dot'
+##file_object = open(filename,'w')
+##file_object.write('digraph G{ \n')
+##i = 1
+##NumList = dict()
+##for ele1,ele2 in ALLNodeList.items():
+##    file_object.write('\tnode'+ '%d' %i + '[label = "%X"]' %ele1 +';\n')
+##    NumList[ele1] = i
+##    i += 1
+##file_object.write('\n')
+##for ele1,ele2 in ALLNodeList.items():
+##    for f in ele2.CList:
+##        file_object.write('\tnode%d' %NumList[ele1] + ' -> ' + 'node%d' %NumList[f.Addr] +'\n')
+##file_object.write('}')
+##file_object.close()
+###subprocess.Popen('xdot '+filename,shell = True) 
+##subprocess.Popen('dot -Tpdf -o '+ 'GDB.pdf ' + filename,shell = True)     
 
 TreeFileName = 'TreeGraph.dot'
 file_object = open(TreeFileName,'w')
@@ -460,7 +460,7 @@ for i in range(len(TreeRootList)):
         file_object.write('\tTNode%d' %i + ' -> ' + 'TNode%d' %(c.TreeRootListSeqNum) +'\n')
 file_object.write('}')
 file_object.close()
-subprocess.Popen('dot -Tpdf -o '+ 'TreeGraph.pdf ' + 'TreeGraph.dot',shell = True)  
+subprocess.Popen('dot -Tjpg -o '+ 'TreeGraph.jpg ' + 'TreeGraph.dot',shell = True)  
     
 
 
