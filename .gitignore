@@ -10,7 +10,8 @@ exec /share/vim/vim73/vim "$@"
 *.ini
 *.id0
 *.id1
-*.name
+*.nam
 *.til
-README.md
 tmp.py
+
+*.jpg

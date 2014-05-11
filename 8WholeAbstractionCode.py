@@ -124,6 +124,7 @@ if __name__ == "__main__":
                     RepNode.CList.append(cnode)
                 node.CList = [node.CList[0],RepNode]
                 RepNode.FList = [node]
+                ALLNodeList[RepNode.Addr] = RepNode
                 node = RepNode
             break
 
@@ -136,6 +137,7 @@ if __name__ == "__main__":
         RepNode.FList = ReturnNode
         for node in ReturnNode:
             node.CList = [RepNode]
+        ALLNodeList[RepNode.Addr] = RepNode
 
 
 ######################################################################################################################################
@@ -318,6 +320,7 @@ if __name__ == "__main__":
 ######################################################################################################################################
 #   PreOperationMethod1
 #
+        print 'OK for pre1'
         for t,node in ALLNodeList.items():
         # here we assume that there is only a node that has more than two children in a function
             if len(node.CList) > 2:
@@ -332,11 +335,12 @@ if __name__ == "__main__":
                         RepNode.CList.append(cnode)
                     node.CList = [node.CList[0],RepNode]
                     RepNode.FList = [node]
+                    ALLNodeList[RepNode.Addr] = RepNode
                     node = RepNode
                 break
     #print ALLNodeList.items()
+
     # here the first half has been finished, the code above should be independent with the code below
-    
 ######################################################################################################################################
 #   take turns to use AbstractMethod1 and AbstractMethod3
 #
@@ -469,7 +473,7 @@ if __name__ == "__main__":
             IsSimplable = 1
 ######################################################################################################################################
 
-###since after abstraction usually there is only one node left, we needn't output the result
+#since after abstraction usually there is only one node left, we needn't output the result
 ##print ALLNodeList.items()
 ##filename = 'GDB.dot'
 ##file_object = open(filename,'w')
@@ -487,7 +491,7 @@ if __name__ == "__main__":
 ##file_object.write('}')
 ##file_object.close()
 ###subprocess.Popen('xdot '+filename,shell = True) 
-##subprocess.Popen('dot -Tpdf -o '+ 'GDB.pdf ' + filename,shell = True)     
+###subprocess.Popen('dot -Tpdf -o '+ 'GDB.pdf ' + filename,shell = True)     
 
 TreeFileName = 'TreeGraph.dot'
 file_object = open(TreeFileName,'w')

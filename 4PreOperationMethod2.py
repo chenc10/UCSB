@@ -38,11 +38,14 @@ if __name__ == "__main__":
         else:
             ReturnNode.append(CurrentNode)
         i = i + 1
+
+    #crucial part of pre-operation method 2    
     if len(ReturnNode) > 1:
         RepNode = Node(ReturnNode[0].Addr + 1)
         RepNode.FList = ReturnNode
         for node in ReturnNode:
             node.CList = [RepNode]
+        ALLNodeList[RepNode.Addr] = RepNode
 
         
 

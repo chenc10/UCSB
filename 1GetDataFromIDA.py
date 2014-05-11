@@ -70,7 +70,26 @@ for ele1,ele2 in ALLNodeList.items():
 sorted = ALLNodeList.items()
 sorted.sort()
 
-# be noted that we make a shift(by *16), in order to prepare for replication(where we need to distinguish those created from replication)
+
+fname = GetFunctionName(ea)
+filename = fname + '.dot'
+file_object = open(filename,'w')
+file_object.write('digraph G{ \n')
+i = 1
+NumList = dict()
+for ele1,ele2 in sorted:
+    file_object.write('\tnode'+ '%d' %i + '[label = "%X"]' %(ele1*16) +';\n')
+    NumList[ele1] = i
+    i += 1
+file_object.write('\n')
+for ele1,ele2 in sorted:
+    for f in ele2.CList:
+        file_object.write('\tnode%d' %NumList[ele1] + ' -> ' + 'node%d' %NumList[f.Addr] +'\n')
+file_object.write('}')
+file_object.close()
+subprocess.Popen('xdot '+filename,shell = True) 
+subprocess.Popen('dot -Tjpg -o '+fname +'.jpg ' + filename,shell = True)     
+
 record = open("GDB.txt",'w')
 for ele1,ele2 in sorted:
     ele1 = ele1 * 16
@@ -86,23 +105,3 @@ for ele1,ele2 in sorted:
         record.write("%X "%ad)
     record.write("\n")
 record.close()
-
-fname = GetFunctionName(ea)
-filename = fname + '.dot'
-file_object = open(filename,'w')
-file_object.write('digraph G{ \n')
-i = 1
-NumList = dict()
-for ele1,ele2 in sorted:
-    file_object.write('\tnode'+ '%d' %i + '[label = "%X"]' %ele1 +';\n')
-    NumList[ele1] = i
-    i += 1
-file_object.write('\n')
-for ele1,ele2 in sorted:
-    for f in ele2.CList:
-        file_object.write('\tnode%d' %NumList[ele1] + ' -> ' + 'node%d' %NumList[f.Addr] +'\n')
-file_object.write('}')
-file_object.close()
-#subprocess.Popen('xdot '+filename,shell = True) 
-subprocess.Popen('dot -Tjpg -o '+fname +'.jpg ' + filename,shell = True)     
-

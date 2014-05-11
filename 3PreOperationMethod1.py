@@ -49,6 +49,7 @@ if __name__ == "__main__":
                     RepNode.CList.append(cnode)
                 node.CList = [node.CList[0],RepNode]
                 RepNode.FList = [node]
+                ALLNodeList[RepNode] = RepNode
                 node = RepNode
             break
         
