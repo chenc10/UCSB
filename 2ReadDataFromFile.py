@@ -17,7 +17,7 @@ if __name__ == "__main__":
     fread.close()
     i = 0
     while i < len(Database):
-                CurrentNode = ALLNodeList.setdefault(int(Database[i],16),Node(int(Database[i],16)))
+        CurrentNode = ALLNodeList.setdefault(int(Database[i],16),Node(int(Database[i],16)))
         i = i + 1
         SaveFathers = Database[i][0:len(Database[i])-2].split(' ')
         if SaveFathers <> ['']:
@@ -33,3 +33,5 @@ if __name__ == "__main__":
                 C = ALLNodeList.setdefault(int(SaveChildrens[m],16),Node(int(SaveChildrens[m],16)))
                 CurrentNode.add_CList(C)
         i = i + 1
+
+    print 'success'
