@@ -26,6 +26,7 @@
 import subprocess
 ALLNodeList = dict()#dictionary for saving the existence of nodes
 TreeRootList = dict()
+graphnum = 0
 class TreeRoot:
     "'Tree inside node'"
     def __init__(self,Addr,type):
@@ -123,6 +124,25 @@ def check_abs1_type(Node):
             return i
     return -3
 
+def myprint(graphnum):
+    return
+    filename = 'GDB'+str(graphnum)+'.dot'
+    file_object = open(filename,'w')
+    file_object.write('digraph G{ \n')
+    i = 1
+    NumList = dict()
+    for ele1,ele2 in ALLNodeList.items():
+        file_object.write('\tnode'+ '%d' %i + '[label = "%X"]' %ele1 +';\n')
+        NumList[ele1] = i
+        i += 1
+    file_object.write('\n')
+    for ele1,ele2 in ALLNodeList.items():
+        for f in ele2.CList:
+            file_object.write('\tnode%d' %NumList[ele1] + ' -> ' + 'node%d' %NumList[f.Addr] +'\n')
+    file_object.write('}')
+    file_object.close()
+    subprocess.Popen('dot -Tjpg -o '+ 'GDB'+str(graphnum)+'.jpg ' + filename,shell = True)
+    
 if __name__ == "__main__":
 
 ######################################################################################################################################
@@ -351,22 +371,22 @@ if __name__ == "__main__":
 ##            print ' son:',hex(cnode.Addr)
 ##            for ccnode in cnode.CList:
 ##                print '     sson:',hex(ccnode.Addr)
-    filename = 'GDB.dot'
-    file_object = open(filename,'w')
-    file_object.write('digraph G{ \n')
-    i = 1
-    NumList = dict()
-    for ele1,ele2 in ALLNodeList.items():
-        file_object.write('\tnode'+ '%d' %i + '[label = "%X"]' %ele1 +';\n')
-        NumList[ele1] = i
-        i += 1
-    file_object.write('\n')
-    for ele1,ele2 in ALLNodeList.items():
-        for f in ele2.CList:
-            file_object.write('\tnode%d' %NumList[ele1] + ' -> ' + 'node%d' %NumList[f.Addr] +'\n')
-    file_object.write('}')
-    file_object.close()
-    subprocess.Popen('dot -Tjpg -o '+ 'GDB.jpg ' + filename,shell = True)     
+##    filename = 'GDB.dot'
+##    file_object = open(filename,'w')
+##    file_object.write('digraph G{ \n')
+##    i = 1
+##    NumList = dict()
+##    for ele1,ele2 in ALLNodeList.items():
+##        file_object.write('\tnode'+ '%d' %i + '[label = "%X"]' %ele1 +';\n')
+##        NumList[ele1] = i
+##        i += 1
+##    file_object.write('\n')
+##    for ele1,ele2 in ALLNodeList.items():
+##        for f in ele2.CList:
+##            file_object.write('\tnode%d' %NumList[ele1] + ' -> ' + 'node%d' %NumList[f.Addr] +'\n')
+##    file_object.write('}')
+##    file_object.close()
+##    subprocess.Popen('dot -Tjpg -o '+ 'GDB.jpg ' + filename,shell = True)     
    
 
     # here the first half has been finished, the code above should be independent with the code below
@@ -383,19 +403,20 @@ if __name__ == "__main__":
         graphnum = graphnum + 1
         print '\nloop again'
         MyStack = Stack()
+        FirstNode.IsVisited = 1
         CurrentNode = FirstNode
         MyStack.Push(CurrentNode)
         IsSimplable = 0
         while MyStack.IsEmpty() <> True and IsSimplable == 0:
             CurrentNode = MyStack.Pop()
-            CurrentNode.IsVisited = 1
+            print 'pop',CurrentNode.IsVisited,hex(CurrentNode.Addr)
             if len(CurrentNode.CList) <> 0:  #if this node is an endpoint of current visiting branch
                 for node in CurrentNode.CList:
                     if node.IsVisited == 1:
                         if len(node.CList) == 0:
                             continue
                         print 'we find',hex(CurrentNode.Addr),hex(ALLNodeList[CurrentNode.Addr].Addr),hex(node.Addr)
-
+                        #print len(ALLNodeList)
                         # we find a case where a replication is needed
                         # we should avoid Addr conflict here
                         RepNodeAddrOffset = 1
@@ -421,11 +442,16 @@ if __name__ == "__main__":
                         IsSimplable = 1# to show that abstraction method 3 comes into force
                         break
                     else:
+                        node.IsVisited = 1
                         MyStack.Push(node)
+                        print ' push',node.IsVisited,hex(node.Addr)
                         #print hex(CurrentNode.Addr),hex(node.Addr)
                         
         for a,node in ALLNodeList.items():
             node.IsVisited = 0
+        print graphnum
+        graphnum = graphnum + 1
+        myprint(graphnum)
 ##        print 3
 ##        for a in ALLNodeList[67342176].CList:
 ##            print '  ',hex(a.Addr)
@@ -576,6 +602,7 @@ if __name__ == "__main__":
 ##file_object.write('}')
 ##file_object.close()
 ##subprocess.Popen('dot -Tjpg -o '+ 'GDB.jpg ' + filename,shell = True)     
+
 
 TreeFileName = 'TreeGraph.dot'
 file_object = open(TreeFileName,'w')
