@@ -7,7 +7,7 @@ This is a brief introduction of my work.
 	2ReadDataFromFile.py
 		read data from txt file into memory
 
- 	3reOperationMethod2.py
+ 	3PreOperationMethod.py
 		exert pre-operation method 
 
 	4AbstractionMethod1.py
@@ -44,5 +44,6 @@ This is a brief introduction of my work.
 * What's the next:
 
 	Since the inner construction of nodes has been finished, it's easy to do experiments and give evaluation to our thoery.
+
 	It's very possible that some problems be met when more experiments are done.
 
