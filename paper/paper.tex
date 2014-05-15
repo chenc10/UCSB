@@ -26,30 +26,14 @@ In this paper, we proposed a novel method using abstraction conception. We first
 \section{Algorithm}
 \textbf{A. PRE-OPERATION:}\
 
-As mentioned in ABSTRACT, there are two good and useful properties in CFG:\\
+As mentioned in ABSTRACT, there is a good and useful properties in CFG: Most CFGs have only one enter-point and one exit-node\\
 
-   		 \textit{i)}	Most nodes in CFG have no more than two children;\
+   	 However, we have to admit that there exist some cases where that property are not satisfied. Thus, to ensure that following algorithm can be applied to any case, we have to do pre-operation:\\
 
-   		 \textit{ii)}	Most CFGs have only one enter-point and one exit-node\\
-
-   	 However, we have to admit that there exist some cases where the two properties are not satisfied. Thus, to ensure that following algorithm can be applied to any case, we have to do some pre-operations:\\
-
-\textit{\textbf{pre-operation 1}} To those nodes who have more than 2 children, we will convert them into several nodes, all of which having two children.\
-
-\textit{\textbf{pre-operation 2}} It's true that each function has only one enter-node, but may not only one exit-node. However, since any function, no matter how many exit-nodes it has, will return to the very function who has called it, we can set a virtual exit-node for each function. In this way, we can deal with all the functions as if they have only one exit-point.\\
+\textit{\textbf{pre-operation}} It's true that each function has only one enter-node, but may not only one exit-node. However, since any function, no matter how many exit-nodes it has, will return to the very function who has called it, we can set a virtual exit-node for each function. In this way, we can deal with all the functions as if they have only one exit-point. After that, we can see the excuting control flows beautifully from the enterpoint to the exit-node. Then, we can abstract the graph into a single node without actually voilating the control flow.\\
 
 \begin{figure}
 \begin{center}
-\begin{minipage}[c]{0.5\textwidth}
-\centering
-\subfigure[Before operation]{
-\includegraphics[width=0.4\textwidth]{cc1.jpg}}
-\subfigure[After operation]{
-\includegraphics[width=0.4\textwidth]{cc2.jpg}}
-\renewcommand{\figurename}{Figure}
-\caption{Pre-operation method 1 }
-\label{}
-\end{minipage}%
 \begin{minipage}[c]{0.5\textwidth}
 \centering
 \subfigure[Before operation]{
@@ -57,7 +41,7 @@ As mentioned in ABSTRACT, there are two good and useful properties in CFG:\\
 \subfigure[After operation]{
 \includegraphics[width=0.4\textwidth]{cc4.jpg}}
 \renewcommand{\figurename}{Figure}
-\caption{Pre-operation method 2 }
+\caption{Pre-operation method}
 \label{}
 \end{minipage}
 \end{center}
@@ -69,7 +53,7 @@ As mentioned in ABSTRACT, there are two good and useful properties in CFG:\\
 
 There are three kinds of operation methods as follow:\\
 
-    \textit{\textbf{abstraction method 1}} (1)Two subsequent nodes A(father) and B(child) can be abstracted into a single node if the the father node A has only one child(B) and the child B has only one  father(A); (2)  and four nodes which have made up a "diamond" can be simplified into two node, as the picture has showed below:\
+    \textit{\textbf{abstraction method 1}} (1)Two subsequent nodes A(father) and B(child) can be abstracted into a single node if the the father node A has only one child(B) and the child B has only one  father(A); (2)  and if from node A two or more control flow branchs, which respectively point to node B1, B2 and so on (let's call them B-nodes), merge together to a single node C after leaving B-nodes, then we can simplify node A and B-nodes into one node, as the picture has showed in Figure 3.\
     
 \begin{figure}[Htb]
 \centering

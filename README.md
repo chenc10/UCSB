@@ -7,26 +7,23 @@ This is a brief introduction of my work.
 	2ReadDataFromFile.py
 		read data from txt file into memory
 
-	3PreOperationMethod1.py
-		exert pre-operation method 1
+ 	3reOperationMethod2.py
+		exert pre-operation method 
 
- 	4PreOperationMethod2.py
-		exert pre-operation method 2
-
-	5AbstractionMethod1.py
+	4AbstractionMethod1.py
 		using abstraction method 1 to simplify the graph
 
- 	6AbstractionMethod2.py
+ 	5AbstractionMethod2.py
 		using abstraction method 2 to simplify the graph
 
- 	7AbstractionMethod3.py
+ 	6AbstractionMethod3.py
 		using abstraction method 3 to simplify the graph
 
 
     ABOVE is for debugging and reading seperately. And each file can be executed independently.
  
 
- 	8WholeAbstractionCode.py
+ 	7WholeAbstractionCode.py
 	this is an integrated code from the last 6 independent files and it can finish all the abstraction work.
 
     I've finished the inner construction inside each node. About the detailed instruction, please refer to the report named "Intro_CFG_Matching_Method.pdf".

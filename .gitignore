@@ -13,5 +13,7 @@ exec /share/vim/vim73/vim "$@"
 *.nam
 *.til
 tmp.py
-
+*_bak.tex
+*.aux
+*.log
 *.jpg
