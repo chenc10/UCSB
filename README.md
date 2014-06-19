@@ -20,13 +20,13 @@ This is a brief introduction of my work.
 		using abstraction method 3 to simplify the graph
 
 
-    ## ABOVE is for debugging and reading seperately. And each file can be executed independently.
+    	ABOVE is for debugging and reading seperately. And each file can be executed independently.
  
 
  	7WholeAbstractionCode.py
 		this is an integrated code from the last 6 independent files and it can finish all the abstraction work.
 
-    ## I've finished the inner construction inside each node. About the detailed instruction, please refer to the report named "Intro_CFG_Matching_Method.pdf".
+    	I've finished the inner construction inside each node. About the detailed instruction, please refer to the report named "Intro_CFG_Matching_Method.pdf".
 	
 	8CompareTree.py
 		this code is for comparing the two trees inside the final nodes after abstraction. We can achieve exact matching currently.
@@ -47,4 +47,4 @@ This is a brief introduction of my work.
 
 * What's the next:
 
-	We need to decide to what extend shall we tolerate the difference between two tree when judging them as  "similar". I'm reading papers to better understanding the mechanism polymorphism.
+	We need to decide to what extend shall we tolerate the difference between two trees when judging them as "similar". I'm reading papers to better understand the mechanism polymorphism.
