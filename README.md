@@ -20,14 +20,16 @@ This is a brief introduction of my work.
 		using abstraction method 3 to simplify the graph
 
 
-    ABOVE is for debugging and reading seperately. And each file can be executed independently.
+    ## ABOVE is for debugging and reading seperately. And each file can be executed independently.
  
 
  	7WholeAbstractionCode.py
-	this is an integrated code from the last 6 independent files and it can finish all the abstraction work.
+		this is an integrated code from the last 6 independent files and it can finish all the abstraction work.
 
-    I've finished the inner construction inside each node. About the detailed instruction, please refer to the report named "Intro_CFG_Matching_Method.pdf".
-
+    ## I've finished the inner construction inside each node. About the detailed instruction, please refer to the report named "Intro_CFG_Matching_Method.pdf".
+	
+	8CompareTree.py
+		this code is for comparing the two trees inside the final nodes after abstraction. We can achieve exact matching currently.
 
 
 * Let me use a real example of file to illustrate the result of abstraction:
@@ -36,14 +38,13 @@ This is a brief introduction of my work.
 
 	The tree inside the final node after abstraction is represented by the file "After_TreeGraph.jpg". And the construction of this tree can show the process of abstraction and we can use it for comparing it with another CFG.
 
+	Every CFG is abstracted into such a tree in the database. And we can judge whether two initial CFGs are similar by comparing their trees with 8CompareTree.py.
+
 * If you want to have a try:
 	
 	First, run 1GetDataFromIDA.py under IDA->python_command, and a file named "GDB.txt" would be generated. Every three lines in "GDB.txt" mean the address of a node, the addresses of its fathers and the addresses of its children, respectively. 
-	Second, run 8WholeAbstractionCode.py under the same folder. It will automatically read the 'GDB.txt' file and give useful results.
+	Second, run 7WholeAbstractionCode.py under the same folder. It will automatically read the 'GDB.txt' file and give useful results.
 
 * What's the next:
 
-	Since the inner construction of nodes has been finished, it's easy to do experiments and give evaluation to our thoery.
-
-	It's very possible that some problems be met when more experiments are done.
-
+	We need to decide to what extend shall we tolerate the difference between two tree when judging them as  "similar". I'm reading papers to better understanding the mechanism polymorphism.

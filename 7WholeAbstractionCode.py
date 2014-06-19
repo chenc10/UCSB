@@ -536,6 +536,15 @@ if __name__ == "__main__":
             IsSimplable = 1
 ######################################################################################################################################
 
+TreeDataFileName = 'TreeRoot.dat'
+File_TreeRoot = open(TreeDataFileName, 'w')
+for i in range(len(TreeRootList)):
+    File_TreeRoot.write('%d' %i + ' %d' %TreeRootList[i].TreeRootType + ' %d' %TreeRootList[i].NumOfNodes + '\n\t')
+    for c in TreeRootList[i].TCList:
+        File_TreeRoot.write('%d ' %(c.TreeRootListSeqNum))
+    File_TreeRoot.write('\n')
+File_TreeRoot.close()
+
 
 TreeFileName = 'TreeGraph.dot'
 file_object = open(TreeFileName,'w')
