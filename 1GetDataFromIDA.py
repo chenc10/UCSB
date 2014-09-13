@@ -1,5 +1,3 @@
-#extracting graph from the results of IDA, and then save that graph in a txt file ¡°GDB.txt" in the form of an adjacency list
-#this is for the convenience of debugging, we needn't execute the program in IDA any more
 from idaapi import *
 import subprocess
 from idautils import *
@@ -67,41 +65,29 @@ print len(ALLNodeList.items())
 for ele1,ele2 in ALLNodeList.items():
     ele2.FList = list(set(ele2.FList))
     ele2.CList = list(set(ele2.CList))
+a = 7
+if len(ALLNodeList.items()) < 10:
+	a = 8
 sorted = ALLNodeList.items()
 sorted.sort()
 
+if a == 7:
+    fname = GetFunctionName(ea)
+    filename = fname + '.txt'
+    file_object = open(filename,'w')
 
-fname = GetFunctionName(ea)
-filename = fname + '.dot'
-file_object = open(filename,'w')
-file_object.write('digraph G{ \n')
-i = 1
-NumList = dict()
-for ele1,ele2 in sorted:
-    file_object.write('\tnode'+ '%d' %i + '[label = "%X"]' %(ele1*16) +';\n')
-    NumList[ele1] = i
-    i += 1
-file_object.write('\n')
-for ele1,ele2 in sorted:
-    for f in ele2.CList:
-        file_object.write('\tnode%d' %NumList[ele1] + ' -> ' + 'node%d' %NumList[f.Addr] +'\n')
-file_object.write('}')
-file_object.close()
-subprocess.Popen('xdot '+filename,shell = True) 
-subprocess.Popen('dot -Tjpg -o '+fname +'.jpg ' + filename,shell = True)     
-
-record = open("GDB.txt",'w')
-for ele1,ele2 in sorted:
-    ele1 = ele1 * 16
-    record.write("%X\n\t"%ele1)
-    for f in ele2.FList:
-        ad = f.Addr
-        ad = ad * 16
-        record.write("%X "%ad)
-    record.write("\n\t")
-    for c in ele2.CList:
-        ad = c.Addr
-        ad = ad * 16
-        record.write("%X "%ad)
-    record.write("\n")
-record.close()
+    record = open(filename,'w')
+    for ele1,ele2 in sorted:
+        ele1 = ele1 * 16
+        record.write("%X\n\t"%ele1)
+        for f in ele2.FList:
+            ad = f.Addr
+            ad = ad * 16
+            record.write("%X "%ad)
+        record.write("\n\t")
+        for c in ele2.CList:
+            ad = c.Addr
+            ad = ad * 16
+            record.write("%X "%ad)
+        record.write("\n")
+    record.close()
