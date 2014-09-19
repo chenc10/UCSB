@@ -339,6 +339,13 @@ if __name__ == "__main__":
                         MyStack.Push(node)
                         IfFinished = 0 # we shall mark that current branch can be extended
                         
+                    elif node.IsVisited == 1:
+                    #we need to update the position of node in the stack.
+                        if MyStack.Array.index(node) != len(MyStack.Array) - 1:
+                            MyStack.Array.remove(node)
+                            MyStack.Array.append(node)
+                        IfFinished = 0
+                        
             # when current branch is finished, we have to create new branch or choose to stop        
             if IfFinished == 1:# If current branch has been finished
                 if MyStack.IsEmpty():
@@ -351,14 +358,20 @@ if __name__ == "__main__":
                             node = fnode
                             break
                 while node.CList <> []:# we keep search from this node,this search is to change state 2 to 3
-                    if node.CList[0].IsVisited == 2:
-                        node = node.CList[0]
-                        node.IsVisited = 3
-                    elif len(node.CList) == 2 and node.CList[1].IsVisited == 2:
-                        node = node.CList[1]
-                        node.IsVisited = 3
-                    else: 
+                    tmp = 0
+                    for cnode in node.CList:
+                        if cnode.IsVisited == 2:
+                            tmp = tmp + 1
+                    if tmp > 1:
+                        print "error tmp919"
                         break
+                    if tmp == 0:
+                        break
+                    for cnode in node.CList:
+                        if cnode.IsVisited == 2:
+                            cnode.IsVisited = 3
+                            node = cnode
+                            break
 
         for t,node in ALLNodeList.items():
             node.IsVisited = 0 #reset sign
