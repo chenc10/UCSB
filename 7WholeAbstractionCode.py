@@ -22,11 +22,10 @@
 #           using abstraction method 3 to abstract CFG;
 #         EndWhile
 #       End   
-
+from optparse import OptionParser
 import subprocess
 ALLNodeList = dict()#dictionary for saving the existence of nodes
 TreeRootList = dict()
-graphnum = 0
 class TreeRoot:
     "'Tree inside node'"
     def __init__(self,Addr,type):
@@ -145,7 +144,20 @@ if __name__ == "__main__":
 ######################################################################################################################################
 #   ReadDataFromFile: get data from GDB.txt
 #
-    fread = open("GDB.txt",'r')
+    Parser = OptionParser()
+    Parser.add_option("-r", "--read", dest="readfilename",help="read CFG data from READFILE", metavar ="READFILE")
+    ##Parser.add_option("-w", "--write", dest="writefilename", help="write abstracted tree data to WRITEFILE", metavar = "WRITEFILE")
+    (options, args) = Parser.parse_args()
+    #print options.readfilename
+    #options.readfilename = "sub_401D7E"
+    ReadFileName = options.readfilename + ".txt"
+    TreeFileName = options.readfilename + "_Tree.dat"
+    TreeDotName = options.readfilename + "_TreeDot.dot"
+    TreeGraphName = options.readfilename + "_TreeGraph.jpg"
+    ##TreeFileName = options.writefilename + ".dat"
+    ##TreeGraphName = options.writefilename + ".dot"
+    ##for readfilename itself, we needn't add ".txt" after it
+    fread = open(ReadFileName,'r')
     Database = fread.readlines()
     fread.close()
     i = 0
@@ -155,7 +167,7 @@ if __name__ == "__main__":
             ALLNodeList[int(Database[i],16)] = Node(int(Database[i],16))
         CurrentNode = ALLNodeList[int(Database[i],16)]
         i = i + 1
-        SaveFathers = Database[i][0:len(Database[i])-2].split(' ')
+        SaveFathers = Database[i][1:len(Database[i])-3].split(' ')
         if SaveFathers <> ['']:
             for m in range(len(SaveFathers)):
                 if not ALLNodeList.has_key(int(SaveFathers[m],16)):
@@ -165,7 +177,7 @@ if __name__ == "__main__":
         else:
             FirstNode = CurrentNode
         i = i + 1
-        SaveChildrens = Database[i][0:len(Database[i])-2].split(' ')
+        SaveChildrens = Database[i][1:len(Database[i])-3].split(' ')
         if SaveChildrens <> ['']:
             for m in range(len(SaveChildrens)):
                 if not ALLNodeList.has_key(int(SaveChildrens[m],16)):
@@ -177,7 +189,6 @@ if __name__ == "__main__":
         i = i + 1
         
     print 'finished reading'
-    
 ######################################################################################################################################
 #   PreOperationMethod2
 #
@@ -188,8 +199,6 @@ if __name__ == "__main__":
         for node in ReturnNode:
             node.CList = [RepNode]
         ALLNodeList[RepNode.Addr] = RepNode
-
-
 ######################################################################################################################################
 # take turns to use AbstractMethod1 and AbstractMethod2
 #
@@ -288,6 +297,8 @@ if __name__ == "__main__":
         # 0: a node is not in the stack and has not been visited; 1: a node is in the stack but has not been visited
         # 2: a node is not in the stack but is currently being visited; 3: a node is not in the stack but has already been visited 
         MyStack = Stack()
+        for t,node in ALLNodeList.items():
+            node.IsVisited = 0 #reset sign
         CurrentNode = FirstNode
         MyStack.Push(CurrentNode)
         while MyStack.IsEmpty() <> True and IsSimplable == 0:
@@ -297,7 +308,7 @@ if __name__ == "__main__":
             if len(CurrentNode.CList) <> 0:  #if this node is not an endpoint of current visiting branch
                 for node in CurrentNode.CList:
                     
-                    if node.IsVisited == 2:
+                    if node.IsVisited == 2:##HERE can we make a traversal? In order to reduce entropy. 2 First! maybe not important
                         # we find a loop and then we should begin to abstract this loop into a single node
                         RepNode = Node(node.Addr,2)
                         
@@ -309,7 +320,6 @@ if __name__ == "__main__":
                             for fnode in bnode.CList:
                                 if fnode.IsVisited == 2:
                                     bnode = fnode
-
                         # This part is for judging whether a loop is detected, if true, we exert abstraction of that loop, please be noted that only one loop is abstracted at a time           
                         for t,snode in ALLNodeList.items():
                             if snode.IsVisited == 2:
@@ -338,44 +348,44 @@ if __name__ == "__main__":
                         node.IsVisited = 1
                         MyStack.Push(node)
                         IfFinished = 0 # we shall mark that current branch can be extended
-                        
+
                     elif node.IsVisited == 1:
-                    #we need to update the position of node in the stack.
+                        #we need to update the position of node in the stack.
                         if MyStack.Array.index(node) != len(MyStack.Array) - 1:
                             MyStack.Array.remove(node)
                             MyStack.Array.append(node)
                         IfFinished = 0
-                        
             # when current branch is finished, we have to create new branch or choose to stop        
-            if IfFinished == 1:# If current branch has been finished
+            if IfFinished == 1 and IsSimplable == 0:# Change 1 #If current branch has been finished
                 if MyStack.IsEmpty():
                     node = FirstNode
                     node.IsVisited = 3 # we search from root
                 else:#we begin to mark those nodes that should be marked as 3
                     node = MyStack.Array[-1]
-                    for fnode in node.FList:
+		    tmp927 = 0
+		    for fnode in node.FList:
+			if fnode.IsVisited == 2:
+			    tmp927 = tmp927+1
+		    if tmp927 <> 1:
+			print "another error"
+
+		    for fnode in node.FList:
                         if fnode.IsVisited == 2:
                             node = fnode
                             break
-                while node.CList <> []:# we keep search from this node,this search is to change state 2 to 3
-                    tmp = 0
-                    for cnode in node.CList:
-                        if cnode.IsVisited == 2:
-                            tmp = tmp + 1
-                    if tmp > 1:
-                        print "error tmp919"
-                        break
-                    if tmp == 0:
-                        break
-                    for cnode in node.CList:
-                        if cnode.IsVisited == 2:
-                            cnode.IsVisited = 3
-                            node = cnode
-                            break
+                #while node.CList <> []:# we keep search from this node,this search is to change state 2 to 3
+                    #### here is where error comes from. I should change it to muti-branches cases correspondedly
+		TmpStack=Stack()
+		TmpStack.Push(node)
+		while TmpStack.IsEmpty() <> True:
+		    tmpnode = TmpStack.Pop()
+		    for cnode in tmpnode.CList:
+		    	if cnode.IsVisited == 2:
+		            cnode.IsVisited = 3
+			    TmpStack.Push(cnode)
 
         for t,node in ALLNodeList.items():
             node.IsVisited = 0 #reset sign
-
     # here the first half has been finished, the code above should be independent with the code below
 
 ######################################################################################################################################
@@ -385,9 +395,7 @@ if __name__ == "__main__":
     #   AbstractMethod3:
     #
     IsSimplable = 1
-    graphnum = 0
     while IsSimplable == 1:
-        graphnum = graphnum + 1
         MyStack = Stack()
         FirstNode.IsVisited = 1
         CurrentNode = FirstNode
@@ -452,7 +460,6 @@ if __name__ == "__main__":
                         
         for a,node in ALLNodeList.items():
             node.IsVisited = 0
-
     ######################################################################################################################################
     #   AbstractMethod1:
     #
@@ -549,8 +556,7 @@ if __name__ == "__main__":
             IsSimplable = 1
 ######################################################################################################################################
 
-TreeDataFileName = 'TreeRoot.dat'
-File_TreeRoot = open(TreeDataFileName, 'w')
+File_TreeRoot = open(TreeFileName, 'w')
 for i in range(len(TreeRootList)):
     File_TreeRoot.write('%d' %i + ' %d' %TreeRootList[i].TreeRootType + ' %d' %TreeRootList[i].NumOfNodes + '\n\t')
     for c in TreeRootList[i].TCList:
@@ -558,9 +564,7 @@ for i in range(len(TreeRootList)):
     File_TreeRoot.write('\n')
 File_TreeRoot.close()
 
-
-TreeFileName = 'TreeGraph.dot'
-file_object = open(TreeFileName,'w')
+file_object = open(TreeDotName,'w')
 file_object.write('digraph G{ \n')
 for i in range(len(TreeRootList)):
     file_object.write('\tTNode' + '%d' %i + '[label = "%X"]' %TreeRootList[i].Addr + ';\n')
@@ -570,8 +574,9 @@ for i in range(len(TreeRootList)):
         file_object.write('\tTNode%d' %i + ' -> ' + 'TNode%d' %(c.TreeRootListSeqNum) +'\n')
 file_object.write('}')
 file_object.close()
-subprocess.Popen('dot -Tjpg -o '+ 'TreeGraph.jpg ' + 'TreeGraph.dot',shell = True)
+subprocess.Popen('dot -Tjpg -o '+ TreeGraphName +' ' + TreeDotName,shell = True)
 print 'success!'
+print ''
     
 
 
