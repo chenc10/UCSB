@@ -314,7 +314,7 @@ if __name__ == "__main__":
                         
                         # This part is for ensuring that only those inside a loop can be marked with '2' and then being abstracted
                         bnode = FirstNode
-                        while bnode <> node:
+                        while bnode <> node: #cannot update IsVisited in this way. special cases.
                             if bnode.IsVisited == 2:
                                 bnode.IsVisited = 4
                             for fnode in bnode.CList:
