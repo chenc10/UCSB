@@ -58,6 +58,8 @@ class Node:
         self.TreeRoot = TreeRoot(Addr,type)
     def add_FList(self,Node):
         self.FList.append(Node)
+    def setIsVisited(self,a):
+	self.IsVisited = a
     def add_CList(self,Node):
         self.CList.append(Node)
 class Stack:
@@ -149,7 +151,8 @@ if __name__ == "__main__":
     ##Parser.add_option("-w", "--write", dest="writefilename", help="write abstracted tree data to WRITEFILE", metavar = "WRITEFILE")
     (options, args) = Parser.parse_args()
     #print options.readfilename
-    #options.readfilename = "sub_401D7E"
+    graphnum = 0
+    #options.readfilename = "sub_401160"
     ReadFileName = options.readfilename + ".txt"
     TreeFileName = options.readfilename + "_Tree.dat"
     TreeDotName = options.readfilename + "_TreeDot.dot"
@@ -187,7 +190,6 @@ if __name__ == "__main__":
         else:
             ReturnNode.append(CurrentNode)
         i = i + 1
-        
     print 'finished reading'
 ######################################################################################################################################
 #   PreOperationMethod2
@@ -296,31 +298,40 @@ if __name__ == "__main__":
     #
         # 0: a node is not in the stack and has not been visited; 1: a node is in the stack but has not been visited
         # 2: a node is not in the stack but is currently being visited; 3: a node is not in the stack but has already been visited 
-        MyStack = Stack()
+	print "enter Abs-2"
+	MyStack = Stack()
         for t,node in ALLNodeList.items():
             node.IsVisited = 0 #reset sign
-        CurrentNode = FirstNode
+	CurrentNode = FirstNode
         MyStack.Push(CurrentNode)
         while MyStack.IsEmpty() <> True and IsSimplable == 0:
             CurrentNode = MyStack.Pop()
             CurrentNode.IsVisited = 2
             IfFinished = 1 # 1 represents that this branch has been finished visiting
             if len(CurrentNode.CList) <> 0:  #if this node is not an endpoint of current visiting branch
-                for node in CurrentNode.CList:
-                    
+                #print "current",hex(CurrentNode.Addr)
+		for node in CurrentNode.CList:
                     if node.IsVisited == 2:##HERE can we make a traversal? In order to reduce entropy. 2 First! maybe not important
                         # we find a loop and then we should begin to abstract this loop into a single node
-                        RepNode = Node(node.Addr,2)
+                        #print hex(node.Addr),"find"
+			RepNode = Node(node.Addr,2)
                         
                         # This part is for ensuring that only those inside a loop can be marked with '2' and then being abstracted
                         bnode = FirstNode
-                        while bnode <> node: #cannot update IsVisited in this way. special cases.
-                            if bnode.IsVisited == 2:
-                                bnode.IsVisited = 4
-                            for fnode in bnode.CList:
-                                if fnode.IsVisited == 2:
-                                    bnode = fnode
-                        # This part is for judging whether a loop is detected, if true, we exert abstraction of that loop, please be noted that only one loop is abstracted at a time           
+			TmpStack=Stack()
+			TmpStack.Push(FirstNode)
+			while TmpStack.IsEmpty() <> True:
+			    tmpnode = TmpStack.Pop()
+			    if tmpnode == node:
+				continue
+			    if tmpnode.IsVisited == 2:
+				tmpnode.IsVisited = 4
+				#tmpnode.setIsVisited(4)
+			    for cnode in tmpnode.CList:
+				if cnode.IsVisited == 2:
+				    TmpStack.Push(cnode)
+                        
+			# This part is for judging whether a loop is detected, if true, we exert abstraction of that loop, please be noted that only one loop is abstracted at a time           
                         for t,snode in ALLNodeList.items():
                             if snode.IsVisited == 2:
                                 for fnode in snode.FList:
@@ -350,10 +361,13 @@ if __name__ == "__main__":
                         IfFinished = 0 # we shall mark that current branch can be extended
 
                     elif node.IsVisited == 1:
-                        #we need to update the position of node in the stack.
+                        #we need to update the position of node in the stack. And we also need to update the position of currentnode in the father list of node. Only the two orders are obeyed can the loop be detected and extracted well.
                         if MyStack.Array.index(node) != len(MyStack.Array) - 1:
                             MyStack.Array.remove(node)
                             MyStack.Array.append(node)
+			if node.FList.index(CurrentNode) <> 0:# ensure that the newly visited father is in the first position so that it can be visited first when "for fnode in node.FList"
+			    node.FList.remove(CurrentNode)
+			    node.FList = [CurrentNode] + node.FList
                         IfFinished = 0
             # when current branch is finished, we have to create new branch or choose to stop        
             if IfFinished == 1 and IsSimplable == 0:# Change 1 #If current branch has been finished
@@ -362,15 +376,9 @@ if __name__ == "__main__":
                     node.IsVisited = 3 # we search from root
                 else:#we begin to mark those nodes that should be marked as 3
                     node = MyStack.Array[-1]
-		    tmp927 = 0
 		    for fnode in node.FList:
+                        #catch the first father if having multible, that father is the mostly visited one 
 			if fnode.IsVisited == 2:
-			    tmp927 = tmp927+1
-		    if tmp927 <> 1:
-			print "another error"
-
-		    for fnode in node.FList:
-                        if fnode.IsVisited == 2:
                             node = fnode
                             break
                 #while node.CList <> []:# we keep search from this node,this search is to change state 2 to 3
@@ -394,6 +402,9 @@ if __name__ == "__main__":
     ######################################################################################################################################
     #   AbstractMethod3:
     #
+    print "enter Abs-3"
+    #graphnum = graphnum + 1
+    #myprint(graphnum)
     IsSimplable = 1
     while IsSimplable == 1:
         MyStack = Stack()
@@ -577,6 +588,3 @@ file_object.close()
 subprocess.Popen('dot -Tjpg -o '+ TreeGraphName +' ' + TreeDotName,shell = True)
 print 'success!'
 print ''
-    
-
-
