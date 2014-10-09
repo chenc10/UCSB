@@ -33,6 +33,7 @@ class TreeRoot:
         self.IfLoop = 0
         self.TCList = []
         self.Addr = Addr
+	self.BelowLevel = 1
         self.TreeRootType = type
         self.TreeRootListSeqNum = len(TreeRootList)
         TreeRootList[self.TreeRootListSeqNum] = self
@@ -42,7 +43,9 @@ class TreeRoot:
             self.NumOfNodes = 0
     def Tadd_CList(self,TreeRoot):
         #AbstractionMethod express whether this abstraction contains a loop
-        self.TCList.append(TreeRoot)
+	if self.BelowLevel < TreeRoot.BelowLevel + 1:
+	    self.BelowLevel = TreeRoot.BelowLevel + 1
+	self.TCList.append(TreeRoot)
         self.NumOfNodes = self.NumOfNodes + TreeRoot.NumOfNodes
 class Node:
     "'node for the graph'"
@@ -268,7 +271,7 @@ if __name__ == "__main__":
                     RepNode.FList = node.FList
                     RepNode.CList = [NextNode]
                     RepNode.TreeRoot.Tadd_CList(node.TreeRoot)
-                    if FirstNode == RepNode:
+                    if FirstNode == node:
                         FirstNode = RepNode
                     for cnode in node.CList:
                         if cnode == NextNode:
@@ -442,10 +445,6 @@ if __name__ == "__main__":
                             cnode.FList.append(RepNode1)
                         ALLNodeList[RepNode1.Addr] = RepNode1
 
-##                        graphnum = graphnum + 1
-##                        print 'graphnum:',graphnum
-##                        myprint(graphnum)
-                        
                         while ALLNodeList.has_key(node.Addr + RepNodeAddrOffset):
                             RepNodeAddrOffset = RepNodeAddrOffset + 1
                         if RepNodeAddrOffset > 16:
@@ -569,7 +568,7 @@ if __name__ == "__main__":
 
 File_TreeRoot = open(TreeFileName, 'w')
 for i in range(len(TreeRootList)):
-    File_TreeRoot.write('%d' %i + ' %d' %TreeRootList[i].TreeRootType + ' %d' %TreeRootList[i].NumOfNodes + '\n\t')
+    File_TreeRoot.write('%d' %i + ' %d' %TreeRootList[i].TreeRootType + ' %d' %TreeRootList[i].NumOfNodes + ' %d ' %TreeRootList[i].BelowLevel + '\n\t')
     for c in TreeRootList[i].TCList:
         File_TreeRoot.write('%d ' %(c.TreeRootListSeqNum))
     File_TreeRoot.write('\n')
