@@ -1,3 +1,4 @@
+from munkres import Munkres
 import os
 from decimal import Decimal
 import math
@@ -129,14 +130,26 @@ if __name__ == "__main__":
         if Ele[-4:] == ".dat":
             Database2.append(Folder2+"/"+Ele)
     Matrix = []
+    CostMatrix = []
     for Ele1 in Database1:
         A = []
+	B = []
         for Ele2 in Database2:
             A.append(func_similarity(Ele1,Ele2))
+	    B.append((-1)*A[-1])
         Matrix.append(A)
+	CostMatrix.append(B)
     print_matrix(Matrix)
+    m = Munkres()
+    IndexPairs = m.compute(CostMatrix)
+    TotalValue = 0
+    for x,y in IndexPairs:
+	TotalValue = TotalValue + Matrix[x][y]
+    #note that here the first para is the test software, and the second para is a function in the database
+    TotalValue = float(TotalValue) / float(len(Matrix))
     print "size",len(Matrix),"*",len(Matrix[0])
-    print 'success' 
+    print 'success'
+    print "result"," %.6f" %TotalValue
      
      
      
