@@ -132,8 +132,6 @@ if __name__ == "__main__":
     for Ele1 in Database1:
         A = []
         for Ele2 in Database2:
-	    if func_similarity(Ele1,Ele2) <> 0:
-		print Ele1,Ele2
             A.append(func_similarity(Ele1,Ele2))
         Matrix.append(A)
     print_matrix(Matrix)
