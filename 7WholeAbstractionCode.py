@@ -33,7 +33,7 @@ class TreeRoot:
         self.IfLoop = 0
         self.TCList = []
         self.Addr = Addr
-	self.BelowLevel = 1
+        self.BelowLevel = 1
         self.TreeRootType = type
         self.TreeRootListSeqNum = len(TreeRootList)
         TreeRootList[self.TreeRootListSeqNum] = self
@@ -144,6 +144,24 @@ def myprint(graphnum):
     file_object.close()
     subprocess.Popen('dot -Tjpg -o '+ 'GDB'+str(graphnum)+'.jpg ' + filename,shell = True)
     
+def check_validity(ALLNodeList):
+    sign1 = 0
+    sign2 = 0
+    for t,node in ALLNodeList.items():
+	if sign1 == 1:
+	    break
+        elif len(node.FList) == 0:
+	    sign1 = 1
+    for t,node in ALLNodeList.items():
+	if sign2 == 1:
+	    break
+        elif len(node.CList) == 0:
+	    sign2 = 1
+    if sign1 == 1 and sign2 == 1:
+	return 1
+    return 0
+
+
 if __name__ == "__main__":
 
 ######################################################################################################################################
@@ -194,6 +212,9 @@ if __name__ == "__main__":
             ReturnNode.append(CurrentNode)
         i = i + 1
     print 'finished reading'
+    if check_validity(ALLNodeList) == 0:
+	print "not valid function-data!"
+	exit()
 ######################################################################################################################################
 #   PreOperationMethod2
 #
@@ -328,6 +349,7 @@ if __name__ == "__main__":
 			    if tmpnode == node:
 				continue
 			    if tmpnode.IsVisited == 2:
+				#print "set 2->4", hex(tmpnode.Addr)
 				tmpnode.IsVisited = 4
 				#tmpnode.setIsVisited(4)
 			    for cnode in tmpnode.CList:
@@ -351,10 +373,12 @@ if __name__ == "__main__":
                                             RepNode.CList.append(cnode)
                                 RepNode.TreeRoot.Tadd_CList(snode.TreeRoot)
                                 del ALLNodeList[snode.Addr]
+				#print "delete",hex(snode.Addr)
                         if FirstNode == node:
                             print 'FirstNode is changed in loop'
                             FirstNode = RepNode
                         ALLNodeList[RepNode.Addr] = RepNode
+			#print "add",hex(RepNode.Addr)
                         IsSimplable = 1
                         break
                     
@@ -573,17 +597,17 @@ for i in range(len(TreeRootList)):
         File_TreeRoot.write('%d ' %(c.TreeRootListSeqNum))
     File_TreeRoot.write('\n')
 File_TreeRoot.close()
-
-file_object = open(TreeDotName,'w')
-file_object.write('digraph G{ \n')
-for i in range(len(TreeRootList)):
-    file_object.write('\tTNode' + '%d' %i + '[label = "%X"]' %TreeRootList[i].Addr + ';\n')
-file_object.write('\n')
-for i in range(len(TreeRootList)):
-    for c in TreeRootList[i].TCList:
-        file_object.write('\tTNode%d' %i + ' -> ' + 'TNode%d' %(c.TreeRootListSeqNum) +'\n')
-file_object.write('}')
-file_object.close()
-subprocess.Popen('dot -Tjpg -o '+ TreeGraphName +' ' + TreeDotName,shell = True)
+#
+#file_object = open(TreeDotName,'w')
+#file_object.write('digraph G{ \n')
+#for i in range(len(TreeRootList)):
+#    file_object.write('\tTNode' + '%d' %i + '[label = "%X"]' %TreeRootList[i].Addr + ';\n')
+#file_object.write('\n')
+#for i in range(len(TreeRootList)):
+#    for c in TreeRootList[i].TCList:
+#        file_object.write('\tTNode%d' %i + ' -> ' + 'TNode%d' %(c.TreeRootListSeqNum) +'\n')
+#file_object.write('}')
+#file_object.close()
+#subprocess.Popen('dot -Tjpg -o '+ TreeGraphName +' ' + TreeDotName,shell = True)
 print 'success!'
 print ''
