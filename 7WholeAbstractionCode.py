@@ -161,6 +161,10 @@ def check_validity(ALLNodeList):
 	return 1
     return 0
 
+def sort_children(ALLNodeList):
+    for t,node in ALLNodeList.items():
+	node.CList.sort(reverse=True)
+	
 
 if __name__ == "__main__":
 
@@ -212,6 +216,7 @@ if __name__ == "__main__":
             ReturnNode.append(CurrentNode)
         i = i + 1
     print 'finished reading'
+    sort_children(ALLNodeList)
     if check_validity(ALLNodeList) == 0:
 	print "not valid function-data!"
 	exit()
@@ -220,6 +225,9 @@ if __name__ == "__main__":
 #
     if len(ReturnNode) > 1:
         print "pre-operation method 2 is being used\n"
+	print "replicated return root:"
+	for node in ReturnNode:
+	    print hex(node.Addr)
         RepNode = Node(ReturnNode[0].Addr + 1)
         RepNode.FList = ReturnNode
         for node in ReturnNode:
@@ -322,7 +330,9 @@ if __name__ == "__main__":
     #
         # 0: a node is not in the stack and has not been visited; 1: a node is in the stack but has not been visited
         # 2: a node is not in the stack but is currently being visited; 3: a node is not in the stack but has already been visited 
+	# 4: not used 5: a node is in a loop to be abstracted
 	print "enter Abs-2"
+	sort_children(ALLNodeList)
 	MyStack = Stack()
         for t,node in ALLNodeList.items():
             node.IsVisited = 0 #reset sign
@@ -341,16 +351,13 @@ if __name__ == "__main__":
 			RepNode = Node(node.Addr,2)
                         
                         # This part is for ensuring that only those inside a loop can be marked with '2' and then being abstracted
-                        bnode = FirstNode
 			TmpStack=Stack()
-			TmpStack.Push(FirstNode)
+			TmpStack.Push(node)
 			while TmpStack.IsEmpty() <> True:
 			    tmpnode = TmpStack.Pop()
-			    if tmpnode == node:
-				continue
 			    if tmpnode.IsVisited == 2:
-				#print "set 2->4", hex(tmpnode.Addr)
-				tmpnode.IsVisited = 4
+				#print "set new 2->5", hex(tmpnode.Addr)
+				tmpnode.IsVisited = 5 
 				#tmpnode.setIsVisited(4)
 			    for cnode in tmpnode.CList:
 				if cnode.IsVisited == 2:
@@ -358,15 +365,15 @@ if __name__ == "__main__":
                         
 			# This part is for judging whether a loop is detected, if true, we exert abstraction of that loop, please be noted that only one loop is abstracted at a time           
                         for t,snode in ALLNodeList.items():
-                            if snode.IsVisited == 2:
+                            if snode.IsVisited == 5:
                                 for fnode in snode.FList:
-                                    if fnode.IsVisited <> 2:
+                                    if fnode.IsVisited <> 5:
                                         fnode.CList.remove(snode)
                                         if fnode.CList.count(RepNode) == 0:
                                             fnode.CList.append(RepNode)
                                             RepNode.FList.append(fnode)
                                 for cnode in snode.CList:
-                                    if cnode.IsVisited <> 2:
+                                    if cnode.IsVisited <> 5:
                                         cnode.FList.remove(snode)
                                         if cnode.FList.count(RepNode) == 0:
                                             cnode.FList.append(RepNode)
@@ -432,6 +439,7 @@ if __name__ == "__main__":
     print "enter Abs-3"
     #graphnum = graphnum + 1
     #myprint(graphnum)
+    sort_children(ALLNodeList)
     IsSimplable = 1
     while IsSimplable == 1:
         MyStack = Stack()
@@ -610,4 +618,3 @@ File_TreeRoot.close()
 #file_object.close()
 #subprocess.Popen('dot -Tjpg -o '+ TreeGraphName +' ' + TreeDotName,shell = True)
 print 'success!'
-print ''
