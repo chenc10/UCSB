@@ -65,13 +65,13 @@ print len(ALLNodeList.items())
 for ele1,ele2 in ALLNodeList.items():
     ele2.FList = list(set(ele2.FList))
     ele2.CList = list(set(ele2.CList))
-a = 7
+sign = 0
 if len(ALLNodeList.items()) < 10:
-	a = 8
+	sign = 8
 sorted = ALLNodeList.items()
 sorted.sort()
 
-if a == 7:
+if sign == 7:
     fname = GetFunctionName(ea)
     filename = fname + '.txt'
     file_object = open(filename,'w')
