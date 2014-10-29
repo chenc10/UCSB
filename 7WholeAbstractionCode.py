@@ -145,6 +145,7 @@ def myprint(graphnum):
     subprocess.Popen('dot -Tjpg -o '+ 'GDB'+str(graphnum)+'.jpg ' + filename,shell = True)
     
 def check_validity(ALLNodeList):
+    #to ensure that at least there is an enter point and an exit point
     sign1 = 0
     sign2 = 0
     for t,node in ALLNodeList.items():
@@ -190,6 +191,7 @@ if __name__ == "__main__":
     fread.close()
     i = 0
     ReturnNode = []
+    EnterNode = []
     while i < len(Database):#we should make address * 10
         if not ALLNodeList.has_key(int(Database[i],16)):
             ALLNodeList[int(Database[i],16)] = Node(int(Database[i],16))
@@ -203,6 +205,8 @@ if __name__ == "__main__":
                 F = ALLNodeList[int(SaveFathers[m],16)]
                 CurrentNode.add_FList(F)
         else:
+	    EnterNode.append(CurrentNode)
+	    print CurrentNode
             FirstNode = CurrentNode
         i = i + 1
         SaveChildrens = Database[i][1:len(Database[i])-3].split(' ')
@@ -216,8 +220,9 @@ if __name__ == "__main__":
             ReturnNode.append(CurrentNode)
         i = i + 1
     print 'finished reading'
+    myprint(0)
     sort_children(ALLNodeList)
-    if check_validity(ALLNodeList) == 0:
+    if check_validity(ALLNodeList) == 0 or len(EnterNode)<>1:
 	print "not valid function-data!"
 	exit()
 ######################################################################################################################################
