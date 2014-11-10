@@ -15,8 +15,8 @@ if __name__=="__main__":
 		print sDatabase[i][0:6]
 		if sDatabase[i][0:6] == "result":
 			print i
-			fTmp = float(sDatabase[i][8:])
-			print fTmp
+			print sDatabase[i][7:]
+			fTmp = float(sDatabase[i][7:])
 			lList.append(fTmp)
 			if fTmp > fMaxSimilarity:
 				fMaxSimilarity = fTmp
