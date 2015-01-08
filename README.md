@@ -48,3 +48,6 @@ This is a brief introduction of my work.
 * What's the next:
 
 	We need to decide to what extend shall we tolerate the difference between two trees when judging them as "similar". I'm reading papers to better understand the mechanism polymorphism.
+	
+_____________2014_11_5____________
+The test results is terrible.... I have found some problem in the comparing method( 8
