@@ -3,6 +3,9 @@
 #include<stdlib.h>
 #include<dirent.h>
 #include<time.h>
+
+#define THRESHOLD 0.01
+
 int nRows = 0, nCols = 0;
 int i,j;
 char * Buffer, * cBuffer;
@@ -63,12 +66,8 @@ int main(int argc, char * argv[])
 		if(strstr(pFile1->d_name, ".dat") == NULL) continue;
 		for(j = 0; j < nCols && (pFile2 = readdir(pFolder2)); ){
 			if(strstr(pFile2->d_name, ".dat") == NULL) continue;
-			if( i != 4 || j != 1) {
-				j ++;
-				continue;
-			}
-			//printf("filename: 1-%s 2-%s\n", pFile1->d_name, pFile2->d_name);
 			mfSim[i][j] = gen_sim(pFile1, pFile2);
+			printf("filename: 1-%s 2-%s %f\n", pFile1->d_name, pFile2->d_name, mfSim[i][j]);
 			j ++;
 		}
 		i ++;
@@ -76,6 +75,25 @@ int main(int argc, char * argv[])
 	}
 	closedir(pFolder1);
 	closedir(pFolder2);
+	int * pFlagRow, * pFlagCol;
+	int nSimGraph = 0;
+	float SoftSimilarity = 0.0;
+	pFlagRow = (int *)malloc(nRows * sizeof(int));
+	pFlagCol = (int *)malloc(nCols * sizeof(int));
+	for( i = 0; i < nRows; i ++) pFlagRow[i] = 0;
+	for( j = 0; j < nCols; j ++) pFlagCol[j] = 0;
+	for( i = 0; i < nRows; i ++)
+		for( j = 0; j < nCols; j ++){
+			if(pFlagRow[i] || pFlagCol[j])
+				continue;
+			if(mfSim[i][j] > THRESHOLD){
+				pFlagRow[i] = 1;
+				pFlagCol[j] = 1;
+				nSimGraph ++;
+			}
+		}
+	SoftSimilarity = (float)nSimGraph / (nRows + nCols);
+	printf("result: %f\n", SoftSimilarity);
 	end = clock();
 	float dur;
 	dur = (float)(end-start)/CLOCKS_PER_SEC;
