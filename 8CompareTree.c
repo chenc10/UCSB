@@ -49,11 +49,11 @@ int main(int argc, char * argv[])
 	pFolder1 = opendir(sSoft1);
 	pFolder2 = opendir(sSoft2);
 	while( (pFile1 = readdir(pFolder1)) != NULL){	
-		if( !strstr(pFile1->d_name, ".dat"))	continue;
+		if( !strstr(pFile1->d_name, ".cfg"))	continue;
 		nRows ++;
 	}
 	while( (pFile2 = readdir(pFolder2)) != NULL){	
-		if( !strstr(pFile2->d_name, ".dat"))	continue;
+		if( !strstr(pFile2->d_name, ".cfg"))	continue;
 		nCols ++;
 	}
 	rewinddir(pFolder1);
@@ -63,9 +63,9 @@ int main(int argc, char * argv[])
 	for(i = 0; i < nRows; i ++)
 		mfSim[i] = (float *)malloc( nCols * sizeof(float));
 	for(i = 0; i < nRows && (pFile1 = readdir(pFolder1));  ){
-		if(strstr(pFile1->d_name, ".dat") == NULL) continue;
+		if(strstr(pFile1->d_name, ".cfg") == NULL) continue;
 		for(j = 0; j < nCols && (pFile2 = readdir(pFolder2)); ){
-			if(strstr(pFile2->d_name, ".dat") == NULL) continue;
+			if(strstr(pFile2->d_name, ".cfg") == NULL) continue;
 			mfSim[i][j] = gen_sim(pFile1, pFile2);
 			printf("filename: 1-%s 2-%s %f\n", pFile1->d_name, pFile2->d_name, mfSim[i][j]);
 			j ++;
