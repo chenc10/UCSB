@@ -149,6 +149,14 @@ def check_validity(ALLNodeList):
     sign1 = 0
     sign2 = 0
     for t,node in ALLNodeList.items():
+	for f in node.FList:
+		if f.CList.count(node) <> 1:
+			print " error: invalid cfg "
+			exit(-1)
+	for c in node.CList:
+		if c.FList.count(node) <> 1:
+			print " error: invalid cfg "
+			exit(-1)
 	if sign1 == 1:
 	    break
         elif len(node.FList) == 0:
@@ -179,13 +187,18 @@ if __name__ == "__main__":
     #print options.readfilename
     graphnum = 0
     #options.readfilename = "sub_401160"
-    ReadFileName = options.readfilename + ".txt"
-    TreeFileName = options.readfilename + "_Tree.dat"
-    TreeDotName = options.readfilename + "_TreeDot.dot"
-    TreeGraphName = options.readfilename + "_TreeGraph.jpg"
+    ReadFileName = options.readfilename
+    if ReadFileName[-4:] <> ".cfg":
+	    print "Invalid input file"
+	    exit(-1)
+    ReadFileName = ReadFileName[:-4]
+    TreeFileName = ReadFileName + "_Tree.dat"
+    TreeDotName = ReadFileName + "_TreeDot.dot"
+    TreeGraphName = ReadFileName + "_TreeGraph.jpg"
     ##TreeFileName = options.writefilename + ".dat"
     ##TreeGraphName = options.writefilename + ".dot"
     ##for readfilename itself, we needn't add ".txt" after it
+    ReadFileName=ReadFileName+".cfg"
     fread = open(ReadFileName,'r')
     Database = fread.readlines()
     fread.close()
@@ -193,37 +206,36 @@ if __name__ == "__main__":
     ReturnNode = []
     EnterNode = []
     while i < len(Database):#we should make address * 10
-        if not ALLNodeList.has_key(int(Database[i],16)):
-            ALLNodeList[int(Database[i],16)] = Node(int(Database[i],16))
-        CurrentNode = ALLNodeList[int(Database[i],16)]
+        if not ALLNodeList.has_key(int(Database[i],10)):
+            ALLNodeList[int(Database[i],10)] = Node(int(Database[i],10))
+        CurrentNode = ALLNodeList[int(Database[i],10)]
         i = i + 1
-        SaveFathers = Database[i][1:len(Database[i])-3].split(' ')
+        SaveFathers = Database[i][1:len(Database[i])-2].split(' ')
         if SaveFathers <> ['']:
             for m in range(len(SaveFathers)):
-                if not ALLNodeList.has_key(int(SaveFathers[m],16)):
-                    ALLNodeList[int(SaveFathers[m],16)] = Node(int(SaveFathers[m],16))
-                F = ALLNodeList[int(SaveFathers[m],16)]
+                if not ALLNodeList.has_key(int(SaveFathers[m],10)):
+                    ALLNodeList[int(SaveFathers[m],10)] = Node(int(SaveFathers[m],10))
+                F = ALLNodeList[int(SaveFathers[m],10)]
                 CurrentNode.add_FList(F)
         else:
 	    EnterNode.append(CurrentNode)
-	    print CurrentNode
             FirstNode = CurrentNode
         i = i + 1
-        SaveChildrens = Database[i][1:len(Database[i])-3].split(' ')
+        SaveChildrens = Database[i][1:len(Database[i])-2].split(' ')
         if SaveChildrens <> ['']:
             for m in range(len(SaveChildrens)):
-                if not ALLNodeList.has_key(int(SaveChildrens[m],16)):
-                    ALLNodeList[int(SaveChildrens[m],16)] = Node(int(SaveChildrens[m],16))
-                C = ALLNodeList[int(SaveChildrens[m],16)]
+                if not ALLNodeList.has_key(int(SaveChildrens[m],10)):
+                    ALLNodeList[int(SaveChildrens[m],10)] = Node(int(SaveChildrens[m],10))
+                C = ALLNodeList[int(SaveChildrens[m],10)]
                 CurrentNode.add_CList(C)
         else:
             ReturnNode.append(CurrentNode)
         i = i + 1
     print 'finished reading'
-    myprint(0)
+    #myprint(0)
     sort_children(ALLNodeList)
     if check_validity(ALLNodeList) == 0 or len(EnterNode)<>1:
-	print "not valid function-data!"
+	print "not valid function-data!", ReadFileName
 	exit()
 ######################################################################################################################################
 #   PreOperationMethod2
@@ -232,7 +244,7 @@ if __name__ == "__main__":
         print "pre-operation method 2 is being used\n"
 	print "replicated return root:"
 	for node in ReturnNode:
-	    print hex(node.Addr)
+	    print node.Addr
         RepNode = Node(ReturnNode[0].Addr + 1)
         RepNode.FList = ReturnNode
         for node in ReturnNode:
@@ -336,7 +348,7 @@ if __name__ == "__main__":
         # 0: a node is not in the stack and has not been visited; 1: a node is in the stack but has not been visited
         # 2: a node is not in the stack but is currently being visited; 3: a node is not in the stack but has already been visited 
 	# 4: not used 5: a node is in a loop to be abstracted
-	print "enter Abs-2"
+#	print "enter Abs-2"
 	sort_children(ALLNodeList)
 	MyStack = Stack()
         for t,node in ALLNodeList.items():
@@ -441,7 +453,7 @@ if __name__ == "__main__":
     ######################################################################################################################################
     #   AbstractMethod3:
     #
-    print "enter Abs-3"
+#    print "enter Abs-3"
     #graphnum = graphnum + 1
     #myprint(graphnum)
     sort_children(ALLNodeList)
