@@ -4,7 +4,9 @@
 #include<dirent.h>
 #include<time.h>
 
+#define BUFFER_SIZE 1000
 #define THRESHOLD 0.01
+#define THRESHOLD_NUM_DIFF 2
 
 int nRows = 0, nCols = 0;
 int i,j;
@@ -31,8 +33,8 @@ int main(int argc, char * argv[])
 	start=clock();
 	DIR * pFolder1, *pFolder2;
 	struct dirent * pFile1, *pFile2;	
-	Buffer = (char *)malloc(100 * sizeof(char));
-	cBuffer = (char *)malloc(100 * sizeof(char));
+	Buffer = (char *)malloc(BUFFER_SIZE * sizeof(char));
+	cBuffer = (char *)malloc(BUFFER_SIZE * sizeof(char));
 	sSoft1 = (char *)malloc(100*sizeof(char));
 	sSoft2 = (char *)malloc(100*sizeof(char));
 	sFileName1 = (char *)malloc(100*sizeof(char));
@@ -40,21 +42,29 @@ int main(int argc, char * argv[])
 	TRoot1 = (TNode *)malloc(sizeof(TNode));
 	TRoot2 = (TNode *)malloc(sizeof(TNode));
 	if( argc < 3 ){
-		strcpy(sSoft1,"./123/");
-		strcpy(sSoft2,"./126/");
+		return 0;
 	}else{
 		strcpy(sSoft1,argv[1]);
 		strcpy(sSoft2,argv[2]);
 	}
+	if(!strcmp(sSoft1,sSoft2))
+		return 0;
+
 	pFolder1 = opendir(sSoft1);
 	pFolder2 = opendir(sSoft2);
 	while( (pFile1 = readdir(pFolder1)) != NULL){	
-		if( !strstr(pFile1->d_name, ".cfg"))	continue;
+		if( !strstr(pFile1->d_name, ".dat"))	continue;
 		nRows ++;
 	}
 	while( (pFile2 = readdir(pFolder2)) != NULL){	
-		if( !strstr(pFile2->d_name, ".cfg"))	continue;
+		if( !strstr(pFile2->d_name, ".dat"))	continue;
 		nCols ++;
+	}
+	if( (float)nRows / nCols > THRESHOLD_NUM_DIFF || (float)nCols / nRows > THRESHOLD_NUM_DIFF){
+		closedir(pFolder1);
+		closedir(pFolder2);
+		printf("	result: 0.00\n") ;
+		return 0;
 	}
 	rewinddir(pFolder1);
 	rewinddir(pFolder2);
@@ -63,11 +73,11 @@ int main(int argc, char * argv[])
 	for(i = 0; i < nRows; i ++)
 		mfSim[i] = (float *)malloc( nCols * sizeof(float));
 	for(i = 0; i < nRows && (pFile1 = readdir(pFolder1));  ){
-		if(strstr(pFile1->d_name, ".cfg") == NULL) continue;
+		if(strstr(pFile1->d_name, ".dat") == NULL) continue;
 		for(j = 0; j < nCols && (pFile2 = readdir(pFolder2)); ){
-			if(strstr(pFile2->d_name, ".cfg") == NULL) continue;
+			if(strstr(pFile2->d_name, ".dat") == NULL) continue;
 			mfSim[i][j] = gen_sim(pFile1, pFile2);
-			printf("filename: 1-%s 2-%s %f\n", pFile1->d_name, pFile2->d_name, mfSim[i][j]);
+			//printf("filename: 1-%s 2-%s %f\n", pFile1->d_name, pFile2->d_name, mfSim[i][j]);
 			j ++;
 		}
 		i ++;
@@ -93,11 +103,12 @@ int main(int argc, char * argv[])
 			}
 		}
 	SoftSimilarity = (float)nSimGraph / (nRows + nCols);
-	printf("result: %f\n", SoftSimilarity);
+	printf("	result: %.2f\n", SoftSimilarity);
+	return 0;
 	end = clock();
 	float dur;
 	dur = (float)(end-start)/CLOCKS_PER_SEC;
-	printf("time %f\n",dur);
+	printf("	time %f\n",dur);
 	return 0;
 }
 
@@ -109,6 +120,7 @@ float gen_sim(struct dirent * pFile1, struct dirent * pFile2)
 	strcpy(sFileName2, sSoft2);
 	strcat(sFileName1, pFile1->d_name);
 	strcat(sFileName2, pFile2->d_name);
+	//printf("enter gen_sim: %s %s\n",sFileName1, sFileName2);
 	hFile1 = fopen(sFileName1,"r");
 	hFile2 = fopen(sFileName2,"r");
 	gen_treenodelist(hFile1, &(TRoot1));
@@ -124,6 +136,7 @@ float gen_sim(struct dirent * pFile1, struct dirent * pFile2)
 	//printf("nT1: %d, nT2: %d, DN1: %d, DN2: %d\n", nTotalNumOfNodes1, nTotalNumOfNodes2, DiffNumOfNodes1, DiffNumOfNodes2);
 	float sim1 = 1 - (float)DiffNumOfNodes1/TRoot1->NumOfNodes;
 	float sim2 = 1 - (float)DiffNumOfNodes2/TRoot2->NumOfNodes;
+
 	if(sim1 > sim2) return sim2;
 	return sim1;
 }
@@ -178,10 +191,11 @@ void gen_treenodelist(FILE * hFile, TNode ** TRoot)
 	TNode * pForSwap = NULL;
 	AllTNList = NULL;
 	TNode * CurrentTNode = NULL;
-	for( sign = 0; fgets(Buffer, 100, hFile); sign ++) 	;
+	for( sign = 0; fgets(Buffer, BUFFER_SIZE, hFile); sign ++) 	;
+	sign/=2;
 	rewind(hFile);
 	AllTNList = (TNode **)malloc(sign * sizeof(TNode *));
-	for( sign = 1; fgets(Buffer,100, hFile); sign ++){
+	for( sign = 1; fgets(Buffer,BUFFER_SIZE, hFile); sign ++){
 		if(sign%2 == 0) continue;
 		CurrentTNode = (TNode *)malloc(sizeof(TNode));	
 		tok = strtok(Buffer," ");
@@ -201,16 +215,19 @@ void gen_treenodelist(FILE * hFile, TNode ** TRoot)
 		AllTNList[CurrentTNode->SeqNum] = CurrentTNode;
 	}
 	rewind(hFile);
-	for( sign = 0; fgets(Buffer, 100, hFile); sign = sign + 1){
+	for( sign = 0; fgets(Buffer, BUFFER_SIZE, hFile); sign = sign + 1){
+		if(strlen(Buffer) > BUFFER_SIZE - 5 ){
+			fprintf(stderr,"error! Buffer exceeded!\n");
+			exit(-1);
+		}
 		if(sign%2 == 0) continue;
 		nTSeqNum = sign/2;
 		strcpy(cBuffer, Buffer);
 		tok = strtok(cBuffer," ");
 		while(tok && (atoi(tok) || strstr(tok,"0"))){//strlen(tok)>2 || atoi(tok))){
+
 			AllTNList[nTSeqNum]->NumOfChild ++;
-			tok = strtok(NULL," ");
-		}
-		AllTNList[nTSeqNum]->TNCList = (TNode **)malloc( AllTNList[nTSeqNum]->NumOfChild * sizeof(TNode *));
+			tok = strtok(NULL," "); } AllTNList[nTSeqNum]->TNCList = (TNode **)malloc( AllTNList[nTSeqNum]->NumOfChild * sizeof(TNode *));
 		for( k = 0; k < AllTNList[nTSeqNum]->NumOfChild; k ++){
 			if(!k) tok = strtok(Buffer," ");
 			else tok = strtok(NULL," ");
